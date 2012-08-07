@@ -7,96 +7,154 @@
 // Documentation and full license available at:
 // http://toddself.github.com/jquery.selectinator
 
-// options - elements: array, wrapMedia: boolean, mediaHelpText: string, mediaSelectorClass: string, selectedElementClass: string
-
 (function($){
+    // here are the defaults that can be overridden
+    var defaults = {elements: ['p', 'img'],
+                    mediaElements: ['object', 'iframe', 'embed', 'video', 'audio'],
+                    wrapMedia: true,
+                    mediaHelpString: 'Click here to select this media object',
+                    mediaWrapperClass: 'sl-media',
+                    selectedElementClass: 'sl-selected',
+                    positionDataAttribute: 'sl-position'};
+
+    // the plugin
     $.fn.selectinate = function(options){
-        var elem_list = grabStrings(options.tags);
+        // if you're not passing in an object, we'll make it one...
+        options === Object(options) ? true : options = {};
+        options = $.extend({}, defaults, options);
+
+        // we'll attach the instantiated object to the data attribute
+        // of the element on which you've invoked this plugin.  this means
+        // you can access the methods on the plugin via:
+        // $('#element').data('selectinator').yankSelections();
         var $parent = $(this);
-        $parent.data('selectinator', new $.Selectinator($parent, elem_list));
-    }
+        $parent.data('selectinator', new $.Selectinator($parent, options));
+    };
 
-    var grabStrings = function(arr){
-        var list = [];
-        $.each(arr, function(a){
-            if(typeof a === 'string'){
-                list.push(a);
-            }
-        });
-        return list;
-    }
-
-    $.Selectinator = function($parent, elem_list){
+    // the actual work happens here
+    $.Selectinator = function($parent, options){
         // store a reference to yourself
         var self = this;
-        var this.$parent = $parent;
+        // store the parent element
+        this.$parent = $parent;
 
         // the "clipboard" is where the elements you're pulling out of the DOM
         // are stored for retrival
-        var this.clipboard = [];
+        this.clipboard = [];
+
+        this.options = options;
 
         // attach DOM handlers.  Rather than attaching multiple click events,
         // one for each child element of $parent, we're going to attach the
         // click listener to the $parent element, and have it only call the
         // toggleSelected method when a specific element type is selected.
-        $.each(elem_list, function(elem){
-            this.$parent.on('click', elem, self.toggleSelected);
+        // We also filter out all the media elements here just in case someone
+        // has passed them in.
+        $.each(this.options.elements, function(index, elem){
+            if(self.options.mediaElements.indexOf(elem) === -1){
+                // don't forget to pass the current context to the method
+                self.$parent.on('click', elem, $.proxy(self.toggleSelectedElement, self));
+            }
         });
 
         // this will wrap all the media objects in the page so that they're
         // eaiser to select.  since this does some funny DOM manipulation, you
         // shouldn't ever use this within the context of an RTE or you might
         // have a bad time...
-        self.wrapMedia();
+        this.wrapMedia();
     }
 
     $.Selectinator.prototype.wrapMedia = function(){
         // we want to wrap media objects in special div tags that allow the iframe
-        // to be selected.  media objects = <object>, <iframe>, <embed>
-        var mediaWrapper = $(document.createElement('div')).addClass('sl-media');
-        var mediaHintText = "Click here to select this media object";
-        mediaWrapper.html(mediaHintText).append($(document.createElement('br')));
+        // to be selected.  media objects are defined in options.mediaElements
+        var mediaWrapper = $(document.createElement('div'))
+                                .addClass(this.options.mediaWrapperClass);
+        mediaWrapper.html(this.options.mediaHelpString)
+                    .append($(document.createElement('br'))
+                        .css('clear', 'both'));
 
         // save a reference for easier access
         var self = this;
 
         // for each media tag...
-        $.each(['object', 'embed', 'iframe'], function(mediaTagName){
-            $(mediaTagName, $parent).each(function(mediaTag){
+        $.each(this.options.mediaElements, function(index, mediaTagName){
+            $(mediaTagName, self.$parent).each(function(mediaTag){
                 var mediaObj = $(mediaTag).clone();
                 var localWrapper = mediaWrapper.clone();
                 $(mediaTag).replaceWith(localWrapper.append(mediaObj));
-                self.$parent.on('click', localWrapper, self.toggleSelected);
+                // don't forget to pass the current context to the method
+                self.$parent.on('click', localWrapper, $.proxy(self.toggleSelectedMedia, self));
             });
         });
     };
 
-
-    $.Selectinator.prototype.toggleSelected = function(event){
+    $.Selectinator.prototype.toggleSelectedMedia = function(event){
+        // this works almost exactly the same as the toggleSelected method
+        // only it copies the last child element of the $parent node to the
+        // clipboard, since the media objects are wrapped in a helper div
+        // but applies the data and class information to $parent.
         $target = $(event.currentTarget);
-        var position;
+        event.preventDefault();
 
-        if($target.hasClass('sl-selected')){
-            position = $target.data('sl-position');
-            $target.removeClass('sl-selected');
-            $target.removeData('sl-position');
-            this.clipboard[position] = null;
+        if($target.hasClass(this.options.selectedElementClass)){
+            this.removeDataFromClipboard($target);
         } else {
-            this.clipboard.push($target);
-            var position = this.clipboard.length;
-            $target.data('sl-position', position).addClass('sl-selected');
+            var num_children = $target.children().length
+            this.addDataToClipboard($target, $target.children()[num_children-1])
         }
     };
 
-    $.Selectinator.prototype.yankSelections = function(){};
+    $.Selectinator.prototype.toggleSelectedElement = function(event){
+        // event.currentTarget is the element on which we proxied the handler
+        $target = $(event.currentTarget);
+        event.preventDefault();
 
-    $.Selectinator.prototype.readClipboard = function(){};
+        if($target.hasClass(this.options.selectedElementClass)){
+            this.removeDataFromClipboard($target);
+        } else {
+            this.addDataToClipboard($target);
+        }
+    };
 
-    $.Selectinator.prototype.clearClipboard = function(){};
+    // removes the class, the data attribute and the object from the clipboard list
+    $.Selectinator.prototype.removeDataFromClipboard = function($target){
+            $target.removeClass(this.options.selectedElementClass);
+            var position = $target.data(this.options.positionDataAttribute);
+            this.clipboard.splice(position, 1);
+            $target.removeData('sl-position');
+    };
+
+    $.Selectinator.prototype.addDataToClipboard = function($target, element){
+        if(typeof element === 'undefined'){
+            element = $target;
+        }
+        this.clipboard.push(element);
+        $target.data(this.options.positionDataAttribute, this.clipboard.length)
+               .addClass(this.options.selectedElementClass);
+    };
+
+    $.Selectinator.prototype.yankSelections = function(){
+        $('.'+this.options.selectedElementClass).detach();
+        var clipboard = this.clipboard;
+        this.clipboard = [];
+        return clipboard;
+    };
+
+    $.Selectinator.prototype.readClipboard = function(){
+        return this.clipboard;
+    };
+
+    $.Selectinator.prototype.clearClipboard = function(){
+        $('.'+this.options.selectedElementClass).each(function(el){
+            $(el).removeData('sl-position')
+                 .removeClass(this.options.selectedElementClass);
+        });
+        this.clipboard = [];
+    };
 
     $.Selectinator.prototype.removeAllHandlers = function(){};
 
-    $.Selectinator.prototype.addElementHandler = function(){}:
+    $.Selectinator.prototype.addElementHandler = function(){};
 
     $.Selectinator.prototype.removeElementHandler = function(){};
 
