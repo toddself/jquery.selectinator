@@ -15,7 +15,9 @@
                     mediaHelpString: 'Click here to select this media object',
                     mediaWrapperClass: 'sl-media',
                     selectedElementClass: 'sl-selected',
-                    positionDataAttribute: 'sl-position'};
+                    positionDataAttribute: 'sl-position',
+                    preventDefaultAction: true,
+                    preventDefaultLinkAction: true};
 
     // the plugin
     $.fn.selectinate = function(options){
@@ -107,7 +109,10 @@
     $.Selectinator.prototype.toggleSelectedElement = function(event){
         // event.currentTarget is the element on which we proxied the handler
         $target = $(event.currentTarget);
-        event.preventDefault();
+        if((event.target.nodeName === 'A' && this.options.preventDefaultLinkAction)
+          || (this.options.preventDefaultAction)){
+            event.preventDefault();
+        }
 
         if($target.hasClass(this.options.selectedElementClass)){
             this.removeDataFromClipboard($target);
