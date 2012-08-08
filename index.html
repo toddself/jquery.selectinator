@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>jQuery.Selectinator by toddself</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>jQuery.Selectinator</h1>
+        <p>Allows you to select DOM elements to be yanked out of the page and provided to a script.</p>
+
+        <p class="view"><a href="https://github.com/toddself/jquery.selectinator">View the Project on GitHub <small>toddself/jquery.selectinator</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/toddself/jquery.selectinator/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/toddself/jquery.selectinator/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/toddself/jquery.selectinator">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>jQuery.Selectinator</h1>
+
+<p>This plugin allows you to designate a section of your DOM as an object-level
+clipboard -- that is defined elements contained as child nodes can be selected
+by clicking on them.  When selected they are added to an internal clipboard.</p>
+
+<p>When the user is finished, these items can be returned from the clipboard
+and the items themselves pulled from the DOM.</p>
+
+<p>Please see the demo for more.</p>
+
+<h2>Usage</h2>
+
+<div class="highlight"><pre>    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"test_div"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span>this is a paragraph<span class="nt">&lt;/p&gt;</span>
+        <span class="nt">&lt;p&gt;</span>this is another <span class="nt">&lt;span&gt;&lt;a</span> <span class="na">href=</span><span class="s">"#"</span><span class="nt">&gt;</span>asdkfjdf<span class="nt">&lt;/a&gt;</span>sajdhf<span class="nt">&lt;span&gt;</span> paragraph<span class="nt">&lt;/p&gt;</span>
+        <span class="nt">&lt;iframe</span> <span class="na">width=</span><span class="s">"420"</span> <span class="na">height=</span><span class="s">"315"</span> <span class="na">src=</span><span class="s">"http://www.youtube.com/embed/PLt2gM52wF8"</span> <span class="na">frameborder=</span><span class="s">"0"</span> <span class="na">allowfullscreen</span><span class="nt">&gt;&lt;/iframe&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+<div class="highlight"><pre>    <span class="nx">$</span><span class="p">(</span><span class="s1">'#test_div'</span><span class="p">).</span><span class="nx">selectinate</span><span class="p">();</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s1">'#test_div'</span><span class="p">).</span><span class="nx">data</span><span class="p">(</span><span class="s1">'selectinate'</span><span class="p">).</span><span class="nx">getClipboard</span><span class="p">();</span> <span class="c1">// see what's there</span>
+                                      <span class="p">.</span><span class="nx">yankSelections</span><span class="p">();</span> <span class="c1">// return what's there and pull the elements from the DOM</span>
+                                      <span class="p">.</span><span class="nx">clearClipboard</span><span class="p">();</span> <span class="c1">// clear it all and start over</span>
+</pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/toddself">toddself</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
