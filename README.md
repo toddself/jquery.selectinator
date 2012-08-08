@@ -1,12 +1,11 @@
 # jQuery.Selectinator
 
-The purpose of this plug-in is to allow people to select aribitrary elements
-within the DOM, and pull them out of the DOM, returning them in the selection
-order.
+This plugin allows you to designate a section of your DOM as an object-level
+clipboard -- that is defined elements contained as child nodes can be selected
+by clicking on them.  When selected they are added to an internal clipboard.
 
-Allows you to select entire paragraphs, images, media elements, etc by just
-clicking on them. Allows you to prevent the default actions from occuring as well
-while the plug-in is active.
+When the user is finished, these items can be returned from the clipboard
+and the items themselves pulled from the DOM.
 
 ## Usage
 ```html
@@ -18,7 +17,7 @@ while the plug-in is active.
 ```
 ```javascript
     $('#test_div').selectinate();
-    $('#test_div').data('selectinate').readClipboard(); // see what's there
+    $('#test_div').data('selectinate').getClipboard(); // see what's there
                                       .yankSelections(); // return what's there and pull the elements from the DOM
                                       .clearClipboard(); // clear it all and start over
 ```
