@@ -7,7 +7,8 @@ by clicking on them.  When selected they are added to an internal clipboard.
 When the user is finished, these items can be returned from the clipboard
 and the items themselves pulled from the DOM.
 
-Please see the [demo](http://toddself.github.com/jquery.selectinator/) for more.
+Please see the [demo](http://toddself.github.com/jquery.selectinator/demo.html)
+or the [project home](http://toddself.github.com/jquery.selectinator) for more.
 
 ## Usage
 ```html
