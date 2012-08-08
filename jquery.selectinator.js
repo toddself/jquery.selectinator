@@ -8,7 +8,10 @@
 // http://toddself.github.com/jquery.selectinator
 
 (function($){
-    // here are the defaults that can be overridden
+    // here are the defaults that can be overridden. For the mediaElements
+    // list you do not want to list the tag name that you'll wrap all this in
+    // (probably div) due to how jQuery matches event delegation... i mean
+    // it's something that could be fixed, but it's an issue for now.
     var defaults = {elements: ['p', 'img'],
                     mediaElements: ['object', 'iframe', 'embed', 'video', 'audio'],
                     wrapMedia: true,
@@ -46,10 +49,10 @@
 
         this.options = options;
 
-        // this will wrap all the media objects in the page so that they're
-        // eaiser to select.  since this does some funny DOM manipulation, you
-        // shouldn't ever use this within the context of an RTE or you might
-        // have a bad time...
+        // this wraps all the media objects on the page inside of a <p> tag
+        // with some helpful instructions on how to select the media type.
+        // the instructions, and the list of tags are configurable.
+        // We'lll wrap all the media, and then attach our click handlers
         this.wrapMedia();
 
         // attach DOM handlers.  Rather than attaching multiple click events,
@@ -90,34 +93,24 @@
         });
     };
 
-    $.Selectinator.prototype.toggleSelectedMedia = function(event){
-        // this works almost exactly the same as the toggleSelected method
-        // only it copies the last child element of the $parent node to the
-        // clipboard, since the media objects are wrapped in a helper div
-        // but applies the data and class information to $parent.
-        $target = $(event.currentTarget);
-        event.preventDefault();
-
-        if($target.hasClass(this.options.selectedElementClass)){
-            this.removeDataFromClipboard($target);
-        } else {
-            var num_children = $target.children().length
-            this.addDataToClipboard($target, $target.children()[num_children-1])
-        }
-    };
-
     $.Selectinator.prototype.toggleSelectedElement = function(event){
         // event.currentTarget is the element on which we proxied the handler
         $target = $(event.currentTarget);
+        var element = $target;
+
         if((event.target.nodeName === 'A' && this.options.preventDefaultLinkAction)
           || (this.options.preventDefaultAction)){
             event.preventDefault();
         }
 
+        if($target.hasClass(this.options.mediaWrapperClass)){
+            element = $target.children()[$target.children().length-1];
+        }
+
         if($target.hasClass(this.options.selectedElementClass)){
             this.removeDataFromClipboard($target);
         } else {
-            this.addDataToClipboard($target);
+            this.addDataToClipboard($target, element);
         }
     };
 
@@ -157,10 +150,16 @@
         this.clipboard = [];
     };
 
-    $.Selectinator.prototype.removeAllHandlers = function(){};
+    $.Selectinator.prototype.removeAllHandlers = function(){
+        this.$parent.off();
+    };
 
-    $.Selectinator.prototype.addElementHandler = function(){};
+    $.Selectinator.prototype.addElementHandler = function(tagName){
+        this.$parent.on('click', tagName, $.proxy(self.toggleSelectedElement, self));
+    };
 
-    $.Selectinator.prototype.removeElementHandler = function(){};
+    $.Selectinator.prototype.removeElementHandler = function(tagName){
+        this.$parent.off('click', tagName, $.proxy(self.toggleSelectedElement, self));
+    };
 
 })(jQuery);
