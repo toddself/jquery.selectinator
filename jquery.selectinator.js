@@ -46,6 +46,12 @@
 
         this.options = options;
 
+        // this will wrap all the media objects in the page so that they're
+        // eaiser to select.  since this does some funny DOM manipulation, you
+        // shouldn't ever use this within the context of an RTE or you might
+        // have a bad time...
+        this.wrapMedia();
+
         // attach DOM handlers.  Rather than attaching multiple click events,
         // one for each child element of $parent, we're going to attach the
         // click listener to the $parent element, and have it only call the
@@ -58,18 +64,12 @@
                 self.$parent.on('click', elem, $.proxy(self.toggleSelectedElement, self));
             }
         });
-
-        // this will wrap all the media objects in the page so that they're
-        // eaiser to select.  since this does some funny DOM manipulation, you
-        // shouldn't ever use this within the context of an RTE or you might
-        // have a bad time...
-        this.wrapMedia();
     }
 
     $.Selectinator.prototype.wrapMedia = function(){
         // we want to wrap media objects in special div tags that allow the iframe
         // to be selected.  media objects are defined in options.mediaElements
-        var mediaWrapper = $(document.createElement('div'))
+        var mediaWrapper = $(document.createElement('p'))
                                 .addClass(this.options.mediaWrapperClass);
         mediaWrapper.html(this.options.mediaHelpString)
                     .append($(document.createElement('br'))
@@ -85,7 +85,7 @@
                 var localWrapper = mediaWrapper.clone();
                 $(mediaTag).replaceWith(localWrapper.append(mediaObj));
                 // don't forget to pass the current context to the method
-                self.$parent.on('click', localWrapper.get(0), $.proxy(self.toggleSelectedMedia, self));
+                // self.$parent.on('click', localWrapper.get(0), $.proxy(self.toggleSelectedMedia, self));
             });
         });
     };
