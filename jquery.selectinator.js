@@ -134,6 +134,10 @@
     $.Selectinator.prototype.yankSelections = function(){
         $('.'+this.options.selectedElementClass).detach();
         var clipboard = this.clipboard;
+        var self = this;
+        $.each(clipboard, function(index, item){
+            $(item).removeClass(self.options.selectedElementClass);
+        });
         this.clipboard = [];
         return clipboard;
     };
