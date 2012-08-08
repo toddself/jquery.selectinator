@@ -80,12 +80,12 @@
 
         // for each media tag...
         $.each(this.options.mediaElements, function(index, mediaTagName){
-            $(mediaTagName, self.$parent).each(function(mediaTag){
+            $(mediaTagName, self.$parent).each(function(innerIndex, mediaTag){
                 var mediaObj = $(mediaTag).clone();
                 var localWrapper = mediaWrapper.clone();
                 $(mediaTag).replaceWith(localWrapper.append(mediaObj));
                 // don't forget to pass the current context to the method
-                self.$parent.on('click', localWrapper, $.proxy(self.toggleSelectedMedia, self));
+                self.$parent.on('click', localWrapper.get(0), $.proxy(self.toggleSelectedMedia, self));
             });
         });
     };
@@ -131,10 +131,10 @@
 
     $.Selectinator.prototype.addDataToClipboard = function($target, element){
         if(typeof element === 'undefined'){
-            element = $target;
+            element = $target.get(0);
         }
         this.clipboard.push(element);
-        $target.data(this.options.positionDataAttribute, this.clipboard.length)
+        $target.data(this.options.positionDataAttribute, this.clipboard.length-1)
                .addClass(this.options.selectedElementClass);
     };
 
@@ -145,7 +145,7 @@
         return clipboard;
     };
 
-    $.Selectinator.prototype.readClipboard = function(){
+    $.Selectinator.prototype.getClipboard = function(){
         return this.clipboard;
     };
 

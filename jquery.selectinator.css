@@ -1,7 +1,7 @@
-sl-selected {
+.sl-selected {
     background: lightblue;
 }
 
-sl-media {
+.sl-media {
     border: 2px solid lightblue;
 }
